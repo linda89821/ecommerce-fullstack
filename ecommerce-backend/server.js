@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
 dotenv.config(); // Load .env
-
 connectDB(); // Connect to DB
 
 const app = express();
