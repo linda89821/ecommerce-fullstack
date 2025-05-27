@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import axios from 'axios';
-import ProductItem from '../components/product/ProductItem';
+const ProductItem = lazy(() => import('../components/product/ProductItem'));
 import './ProductPage.css';
 
 function ProductPage() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [setLoading] = useState(true);
+  const [setError] = useState('');
 
   useEffect(() => {
     axios.get('https://fakestoreapi.com/products')
@@ -14,7 +14,7 @@ function ProductPage() {
         setProducts(res.data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setError('Failed to load products');
         setLoading(false);
       });
@@ -23,12 +23,13 @@ function ProductPage() {
   return (
     <div className="product-page">
       <h1>Products</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
       <div className="product-grid">
-        {products.map(product => (
-          <ProductItem key={product.id} product={product} />
-        ))}
+        {/* Lazy Loading */}
+        <Suspense fallback={<div className="product-item-loading">Loading product...</div>}>
+          {products.map(product => (
+            <ProductItem key={product.id} product={product} />
+          ))}
+        </Suspense>
       </div>
     </div>
   );

@@ -22,7 +22,12 @@ function CheckoutPage() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5001/api/orders', {
+      console.log("TOKEN:", token);
+      if (!token) {
+        toast.error('You must be logged in to place an order.');
+        return;
+      }
+      const res = await axios.post('http://localhost:5001/api/orders', {
         items: cartItems,
         total,
         shippingInfo
@@ -30,12 +35,20 @@ function CheckoutPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      toast.success('🎉 Order placed!');
+      const { rebateAmount, newVipLevel } = res.data;
+
+      toast.success(`🎉 Order placed! You earned $${rebateAmount.toFixed(2)} cashback!`);
+      if (newVipLevel) {
+        toast.info(`✨ You have been upgraded to ${newVipLevel}`);
+      }
       clearCart();
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
+      console.error("Order Error:", err.response?.data || err.message);
       toast.error('Order failed');
     }
   };
+
 
   return (
     <div className="checkout-page">
